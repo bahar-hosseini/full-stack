@@ -35,13 +35,68 @@ const typeDefs = `#graphql
      writeToFirestore(data: String!): String
    }
 
+   
+
+ type User {
+  id: ID!
+   name: String!
+   email: String!
+   password:String!
+   position:String!
+ }
+
+ type Mutation {
+  writeToFirestore(data: String!): String
+  loginUser(email: String!, password: String!): User
+  createUser(name: String!, email: String!, password: String!, position: String!): User
+}
+
 `;
 
 const resolvers = {
   Mutation: {
-    writeToFirestore: async (_, { data }) => {
-      await db.collection('messages').doc('greeting').set({ message: data });
-      return 'Data written to Firestore successfully!';
+    loginUser: async (_, { email, password }) => {
+      try {
+        const userCredential = await admin.auth().getUserByEmail(email);
+        const uid = userCredential.uid;
+        const userDoc = await admin
+          .firestore()
+          .collection('users')
+          .doc(uid)
+          .get();
+
+        if (!userDoc.exists) {
+          throw new Error('User not found');
+        }
+
+        return {
+          name: userDoc.data().name,
+          email: userDoc.data().email,
+        };
+      } catch (error) {
+        throw new Error('Invalid credentials');
+      }
+    },
+
+    createUser: async (_, { name, email, password, position }) => {
+      const userCred = await auth.createUser({
+        email,
+        password,
+      });
+
+      await db.collection('users').doc(userCred.uid).set({
+        uid: userCred.uid,
+        name,
+        email,
+        position,
+      });
+
+      return {
+        uid: userCred.uid,
+        name,
+        email,
+        position,
+      };
     },
   },
 };
