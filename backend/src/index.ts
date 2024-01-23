@@ -4,7 +4,6 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
-import { Auth } from 'firebase-admin/lib/auth/auth';
 
 dotenv.config({ path: './.env' });
 
@@ -53,7 +52,7 @@ const typeDefs = `#graphql
      createUser(name: String!, email: String!, password: String!, position: String!): User
      addComment(text: String!, patientId: ID!): Comment
      deleteComment(id: ID!): Comment
-     updateComment(id: ID!, text: String!, patientId: ID!): Comment
+     updateComment(id: ID!, text: String!): Comment
      addPatient(firstname: String!, lastname: String!): Patient
 }
 
@@ -76,7 +75,6 @@ const resolvers = {
         }
 
         return {
- 
           name: userDoc.data().name,
           email: userDoc.data().email,
         };
@@ -103,6 +101,67 @@ const resolvers = {
         email,
         position,
       };
+    },
+
+    addPatient: async (_, { firstname, lastname }) => {
+      try {
+        const patientRef = await db.collection('patients').add({
+          firstname,
+          lastname,
+        });
+
+        return {
+          id: patientRef.id,
+          firstname,
+          lastname,
+        };
+      } catch (error) {
+        throw new Error('Error adding patient');
+      }
+    },
+
+    addComment: async (_, { text, patientId }) => {
+      try {
+        await db.collection('comments').add({
+          text,
+          patientId,
+        });
+
+        return {
+          text,
+          patientId,
+        };
+      } catch (error) {
+        throw new Error('Error adding comment');
+      }
+    },
+    deleteComment: async (_, { commentId }) => {
+      try {
+        await db.collection('comments').doc(commentId).delete();
+
+        return {
+          success: true,
+          message: 'Comment deleted successfully',
+        };
+      } catch (error) {
+        throw new Error('Error deleting comment');
+      }
+    },
+
+    updateComment: async (_, { commentId, newText }) => {
+      try {
+        await db
+          .collection('comments')
+          .doc(commentId)
+          .update({ text: newText });
+
+        return {
+          success: true,
+          message: 'Comment updated successfully',
+        };
+      } catch (error) {
+        throw new Error('Error updating comment');
+      }
     },
   },
 };
