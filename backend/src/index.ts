@@ -27,15 +27,6 @@ interface MyContext {
 }
 
 const typeDefs = `#graphql
-   type Query {
-     hello: String
-     getDataFromFirestore: String
-   }
-   type Mutation {
-     writeToFirestore(data: String!): String
-   }
-
-   
 
  type User {
   id: ID!
@@ -45,10 +36,25 @@ const typeDefs = `#graphql
    position:String!
  }
 
+ type Comment {
+    id: ID!
+    text: String!
+  }
+
+  type Patient {
+    id: ID!
+    firstname: String!
+    lastname: String!
+    comments:[Comment]
+  }
+
  type Mutation {
-  writeToFirestore(data: String!): String
-  loginUser(email: String!, password: String!): User
-  createUser(name: String!, email: String!, password: String!, position: String!): User
+    loginUser(email: String!, password: String!): User
+     createUser(name: String!, email: String!, password: String!, position: String!): User
+     addComment(text: String!, patientId: ID!): Comment
+     deleteComment(id: ID!): Comment
+     updateComment(id: ID!, text: String!, patientId: ID!): Comment
+     addPatient(firstname: String!, lastname: String!): Patient
 }
 
 `;
@@ -70,6 +76,7 @@ const resolvers = {
         }
 
         return {
+ 
           name: userDoc.data().name,
           email: userDoc.data().email,
         };
@@ -83,7 +90,6 @@ const resolvers = {
         email,
         password,
       });
-
       await db.collection('users').doc(userCred.uid).set({
         uid: userCred.uid,
         name,
