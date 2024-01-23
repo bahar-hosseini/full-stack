@@ -34,18 +34,55 @@
         </div>
       </div>
     </div>
+    <div v-if="firstName || familyName" class="my-4">
+      <p v-if="firstName">First Name: {{ firstName }}</p>
+      <p v-if="familyName">Family Name: {{ familyName }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
 const is_dragover = ref(false);
 const uploads = ref([]);
+const firstName = ref('');
+const familyName = ref('');
 
-function upload($event) {
+async function upload($event) {
   is_dragover.value = false;
 
-  const files = $event.dataTransfer ? [...$event.dataTransfer.files] : [...$event.target.files];
-  console.log(files);
+  const files = $event.dataTransfer
+    ? [...$event.dataTransfer.files]
+    : [...$event.target.files];
 
+  uploads.value = [];
+  for (const file of files) {
+    try {
+      const data = await readCsvFile(file);
+      console.log('CSV Data:', data);
+      console.log('first name', data[0]['First Name']);
+      console.log('first name', data[0]['Family Name']);
+
+      firstName.value = data[0]['First Name'];
+      familyName.value = data[0]['Family Name'];
+
+      uploads.value.push({
+        name: file.name,
+        icon: 'fas fa-file-csv',
+        text_class: 'text-sky-500',
+        variant: 'bg-sky-500',
+        current_progress: 100,
+      });
+    } catch (error) {
+      console.error('Error reading CSV file:', error);
+
+      uploads.value.push({
+        name: file.name,
+        icon: 'fas fa-exclamation-circle',
+        text_class: 'text-red-500',
+        variant: 'bg-red-500',
+        current_progress: 100,
+      });
+    }
+  }
 }
 </script>
