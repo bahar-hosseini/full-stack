@@ -16,6 +16,10 @@ const app = express();
 const db = admin.firestore();
 const auth = admin.auth();
 const typeDefs = `#graphql
+   type Query {
+     hello: String
+     getDataFromFirestore: String
+   }
 
  type User {
   id: ID!
@@ -38,7 +42,7 @@ const typeDefs = `#graphql
   }
 
  type Mutation {
-    loginUser(email: String!, password: String!): User
+  loginUser(email: String!, password: String!): User
      createUser(name: String!, email: String!, password: String!, position: String!): User
      addComment(text: String!, patientId: ID!): Comment
      deleteComment(id: ID!): Comment
@@ -119,9 +123,9 @@ const resolvers = {
                 throw new Error('Error adding comment');
             }
         },
-        deleteComment: async (_, { commentId }) => {
+        deleteComment: async (_, { id }) => {
             try {
-                await db.collection('comments').doc(commentId).delete();
+                await db.collection('comments').doc(id).delete();
                 return {
                     success: true,
                     message: 'Comment deleted successfully',
@@ -131,12 +135,9 @@ const resolvers = {
                 throw new Error('Error deleting comment');
             }
         },
-        updateComment: async (_, { commentId, newText }) => {
+        updateComment: async (_, { id, newText }) => {
             try {
-                await db
-                    .collection('comments')
-                    .doc(commentId)
-                    .update({ text: newText });
+                await db.collection('comments').doc(id).update({ text: newText });
                 return {
                     success: true,
                     message: 'Comment updated successfully',

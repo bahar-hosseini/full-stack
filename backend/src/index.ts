@@ -5,6 +5,7 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
 
+
 dotenv.config({ path: './.env' });
 
 const serviceAccount: ServiceAccount = {
@@ -26,6 +27,10 @@ interface MyContext {
 }
 
 const typeDefs = `#graphql
+   type Query {
+     hello: String
+     getDataFromFirestore: String
+   }
 
  type User {
   id: ID!
@@ -48,7 +53,7 @@ const typeDefs = `#graphql
   }
 
  type Mutation {
-    loginUser(email: String!, password: String!): User
+  loginUser(email: String!, password: String!): User
      createUser(name: String!, email: String!, password: String!, position: String!): User
      addComment(text: String!, patientId: ID!): Comment
      deleteComment(id: ID!): Comment
@@ -75,6 +80,7 @@ const resolvers = {
         }
 
         return {
+
           name: userDoc.data().name,
           email: userDoc.data().email,
         };
@@ -88,6 +94,7 @@ const resolvers = {
         email,
         password,
       });
+      
       await db.collection('users').doc(userCred.uid).set({
         uid: userCred.uid,
         name,
@@ -103,8 +110,11 @@ const resolvers = {
       };
     },
 
+
+
     addPatient: async (_, { firstname, lastname }) => {
       try {
+
         const patientRef = await db.collection('patients').add({
           firstname,
           lastname,
@@ -122,6 +132,7 @@ const resolvers = {
 
     addComment: async (_, { text, patientId }) => {
       try {
+
         await db.collection('comments').add({
           text,
           patientId,
@@ -135,9 +146,11 @@ const resolvers = {
         throw new Error('Error adding comment');
       }
     },
-    deleteComment: async (_, { commentId }) => {
+
+    deleteComment: async (_, { id }) => {
       try {
-        await db.collection('comments').doc(commentId).delete();
+
+        await db.collection('comments').doc(id).delete();
 
         return {
           success: true,
@@ -148,12 +161,10 @@ const resolvers = {
       }
     },
 
-    updateComment: async (_, { commentId, newText }) => {
+    updateComment: async (_, { id, newText }) => {
       try {
-        await db
-          .collection('comments')
-          .doc(commentId)
-          .update({ text: newText });
+
+        await db.collection('comments').doc(id).update({ text: newText });
 
         return {
           success: true,
@@ -163,6 +174,7 @@ const resolvers = {
         throw new Error('Error updating comment');
       }
     },
+
   },
 };
 
@@ -172,3 +184,4 @@ const { url } = await startStandaloneServer(server, {
   listen: { port: 4000 },
 });
 console.log(`🚀  Server ready at ${url}`);
+
