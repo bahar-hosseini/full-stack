@@ -1,0 +1,4 @@
+
+<template>
+<UploadFile />
+</template>
