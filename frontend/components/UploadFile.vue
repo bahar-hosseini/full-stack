@@ -34,16 +34,15 @@
         </div>
       </div>
     </div>
-    
-
   </div>
   <div v-if="firstName || familyName" class="my-4">
-      <p v-if="firstName">First Name: {{ firstName }}</p>
-      <p v-if="familyName">Family Name: {{ familyName }}</p>
-    </div>
+    <p v-if="firstName">First Name: {{ firstName }}</p>
+    <p v-if="familyName">Family Name: {{ familyName }}</p>
+  </div>
 </template>
 
 <script setup>
+import checkExcelFile from '@/utils/checkExcelFile';
 const is_dragover = ref(false);
 const uploads = ref([]);
 const firstName = ref('');
@@ -59,13 +58,11 @@ async function upload($event) {
   uploads.value = [];
   for (const file of files) {
     try {
-      const data = await readCsvFile(file);
-      console.log('CSV Data:', data);
-      console.log('first name', data[0]['First Name']);
-      console.log('first name', data[0]['Family Name']);
-
-      firstName.value = data[0]['First Name'];
-      familyName.value = data[0]['Family Name'];
+      if (!checkExcelFile(file)) {
+        const data = await readCsvFile(file);
+        firstName.value = data[0]['First Name'];
+        familyName.value = data[0]['Family Name'];
+      }
 
       uploads.value.push({
         name: file.name,
@@ -84,7 +81,6 @@ async function upload($event) {
         variant: 'bg-red-500',
         current_progress: 100,
       });
-      
     }
   }
 }
