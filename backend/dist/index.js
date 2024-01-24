@@ -19,6 +19,7 @@ const typeDefs = `#graphql
    type Query {
      hello: String
      getDataFromFirestore: String
+     getAllPatients: [Patient]
    }
 
  type User {
@@ -52,6 +53,21 @@ const typeDefs = `#graphql
 
 `;
 const resolvers = {
+    Query: {
+        getAllPatients: async () => {
+            try {
+                const patientsSnapshot = await db.collection('patients').get();
+                const patients = patientsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                return patients;
+            }
+            catch (error) {
+                throw new Error('Error fetching patients');
+            }
+        },
+    },
     Mutation: {
         loginUser: async (_, { email, password }) => {
             try {

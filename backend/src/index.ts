@@ -5,7 +5,6 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
 
-
 dotenv.config({ path: './.env' });
 
 const serviceAccount: ServiceAccount = {
@@ -30,6 +29,7 @@ const typeDefs = `#graphql
    type Query {
      hello: String
      getDataFromFirestore: String
+     getAllPatients: [Patient]
    }
 
  type User {
@@ -64,6 +64,21 @@ const typeDefs = `#graphql
 `;
 
 const resolvers = {
+  Query: {
+    getAllPatients: async () => {
+      try {
+        const patientsSnapshot = await db.collection('patients').get();
+        const patients = patientsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        return patients;
+      } catch (error) {
+        throw new Error('Error fetching patients');
+      }
+    },
+
+  },
   Mutation: {
     loginUser: async (_, { email, password }) => {
       try {
@@ -80,7 +95,6 @@ const resolvers = {
         }
 
         return {
-
           name: userDoc.data().name,
           email: userDoc.data().email,
         };
@@ -94,7 +108,7 @@ const resolvers = {
         email,
         password,
       });
-      
+
       await db.collection('users').doc(userCred.uid).set({
         uid: userCred.uid,
         name,
@@ -110,11 +124,8 @@ const resolvers = {
       };
     },
 
-
-
     addPatient: async (_, { firstname, lastname }) => {
       try {
-
         const patientRef = await db.collection('patients').add({
           firstname,
           lastname,
@@ -132,7 +143,6 @@ const resolvers = {
 
     addComment: async (_, { text, patientId }) => {
       try {
-
         await db.collection('comments').add({
           text,
           patientId,
@@ -149,7 +159,6 @@ const resolvers = {
 
     deleteComment: async (_, { id }) => {
       try {
-
         await db.collection('comments').doc(id).delete();
 
         return {
@@ -163,7 +172,6 @@ const resolvers = {
 
     updateComment: async (_, { id, newText }) => {
       try {
-
         await db.collection('comments').doc(id).update({ text: newText });
 
         return {
@@ -174,8 +182,8 @@ const resolvers = {
         throw new Error('Error updating comment');
       }
     },
-
   },
+
 };
 
 const server = new ApolloServer<MyContext>({ typeDefs, resolvers });
@@ -184,4 +192,3 @@ const { url } = await startStandaloneServer(server, {
   listen: { port: 4000 },
 });
 console.log(`🚀  Server ready at ${url}`);
-
