@@ -34,11 +34,13 @@
         </div>
       </div>
     </div>
-    <div v-if="firstName || familyName" class="my-4">
+    
+
+  </div>
+  <div v-if="firstName || familyName" class="my-4">
       <p v-if="firstName">First Name: {{ firstName }}</p>
       <p v-if="familyName">Family Name: {{ familyName }}</p>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -82,6 +84,7 @@ async function upload($event) {
         variant: 'bg-red-500',
         current_progress: 100,
       });
+      
     }
   }
 }
