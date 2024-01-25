@@ -11,10 +11,17 @@
           >
             <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
               <span class="card-title">Patients File</span>
-              <Icon name="pepicons-pop:file" class="fa fa-compact-disc float-right text-sky-400 text-2xl mr-3"></Icon>
+              <Icon
+                name="pepicons-pop:file"
+                class="fa fa-compact-disc float-right text-sky-400 text-2xl mr-3"
+              ></Icon>
             </div>
             <div class="p-6">
-              <FileItem v-for="(file,i) in files" :key="file.id" :file="file" />
+              <FileItem
+                v-for="(file, i) in files"
+                :key="file.id"
+                :file="file"
+              />
             </div>
           </div>
         </div>
@@ -26,7 +33,7 @@
 import { useFetchFiles } from '@/api/useFetchFiles';
 const { files, pending, error, fetchData } = useFetchFiles();
 
-watch(()=>{
-  fetchData()
-})
+watch(() => {
+  fetchData();
+});
 </script>

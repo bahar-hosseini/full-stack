@@ -2,7 +2,10 @@
   <div class="bg-white rounded border border-gray-200 relative flex flex-col">
     <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
       <span class="card-title">Upload</span>
-      <Icon  name ='mingcute:upload-line' class="fas fa-upload float-right text-sky-400 text-2xl"></Icon>
+      <Icon
+        name="ph:upload-fill"
+        class="fas fa-upload float-right text-sky-400 text-2xl"
+      ></Icon>
     </div>
     <div class="p-6">
       <div
@@ -18,7 +21,9 @@
       >
         <h5>Drop your files here</h5>
       </div>
-      <input type="file" multiple @change="upload($event)" />
+
+      <input type="file" multiple @change="upload($event)" class="mt-3" />
+
       <hr class="my-6" />
 
       <div class="mb-4" v-for="upload in uploads" :key="upload.name">
@@ -42,8 +47,8 @@
 </template>
 
 <script setup>
+import { storage, filesCollection } from '@/includes/firebase';
 
-import { storage,filesCollection } from '@/includes/firebase';
 const is_dragover = ref(false);
 const uploads = ref([]);
 const firstName = ref('');
@@ -60,55 +65,55 @@ async function upload($event) {
 
   files.forEach((file) => {
     if (checkExcelFile(file)) {
-        const data = readCsvFile(file);
-        firstName.value = data[0]['First Name'];
-        familyName.value = data[0]['Family Name'];
+      const data = readCsvFile(file);
+      firstName.value = data[0]['First Name'];
+      familyName.value = data[0]['Family Name'];
+    }
+
+    const storageRef = storage.ref();
+    const filesRef = storageRef.child(`files/${file.name}`);
+    const task = filesRef.put(file);
+
+    const uploadIndex =
+      this.uploads.push({
+        task,
+        current_progress: 0,
+        name: file.name,
+        variant: 'bg-blue-400',
+        icon: 'line-md:loading-alt-loop',
+        text_class: '',
+      }) - 1;
+
+    task.on(
+      'state_changed',
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        this.uploads[uploadIndex].current_progress = progress;
+      },
+      (error) => {
+        this.uploads[uploadIndex].variant = 'bg-red-400';
+        this.uploads[uploadIndex].icon = 'nonicons:error-16';
+        this.uploads[uploadIndex].text_class = 'text-red-400';
+        console.log(error);
+      },
+      async () => {
+        const file = {
+          // uid: 'i\'ll add it after auth',
+          // patient_id: 'i\'ll add after using route',
+          name: task.snapshot.ref.name,
+        };
+
+        file.url = await task.snapshot.ref.getDownloadURL();
+        const fileRef = await filesCollection.add(file);
+        const fileSnapshot = await fileRef.get();
+
+        // this.addFile(fileSnapshot);
+
+        this.uploads[uploadIndex].variant = 'bg-sky-400';
+        this.uploads[uploadIndex].icon = 'lets-icons:done-fill';
+        this.uploads[uploadIndex].text_class = 'text-sky-400';
       }
-
-        const storageRef = storage.ref();
-        const filesRef = storageRef.child(`files/${file.name}`); 
-        const task = filesRef.put(file);
-
-        const uploadIndex =
-          this.uploads.push({
-            task,
-            current_progress: 0,
-            name: file.name,
-            variant: "bg-blue-400",
-            icon: "line-md:loading-alt-loop",
-            text_class: "",
-          }) - 1;
-
-        task.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            this.uploads[uploadIndex].current_progress = progress;
-          },
-          (error) => {
-            this.uploads[uploadIndex].variant = "bg-red-400";
-            this.uploads[uploadIndex].icon = "nonicons:error-16";
-            this.uploads[uploadIndex].text_class = "text-red-400";
-            console.log(error);
-          },
-          async () => {
-            const file = {
-              uid: 'i\'ll add it after auth',
-              patient_id: 'i\'ll add after using route',
-              file_name: task.snapshot.ref.name,
-            };
-
-            file.url = await task.snapshot.ref.getDownloadURL();
-            const fileRef = await filesCollection.add(file);
-            const fileSnapshot = await fileRef.get();
-
-            this.addFile(fileSnapshot);
-            
-            this.uploads[uploadIndex].variant = "bg-sky-400";
-            this.uploads[uploadIndex].icon = "lets-icons:done-fill";
-            this.uploads[uploadIndex].text_class = "text-sky-400";
-          }
     );
   });
 }
