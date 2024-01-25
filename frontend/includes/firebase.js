@@ -1,5 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/storage";
+import "firebase/firestore";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyBwfctz_mBfJ0a22cE7VMd7YJKBsT3Vtds",
@@ -13,8 +15,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const storage = firebase.storage();
+const db = firebase.firestore();
+const filesCollection = db.collection("files");
 
 
 export {
   storage,
+  filesCollection
 };

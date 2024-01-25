@@ -2,7 +2,7 @@
   <div class="bg-white rounded border border-gray-200 relative flex flex-col">
     <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
       <span class="card-title">Upload</span>
-      <i class="fas fa-upload float-right text-sky-400 text-2xl"></i>
+      <Icon  name ='mingcute:upload-line' class="fas fa-upload float-right text-sky-400 text-2xl"></Icon>
     </div>
     <div class="p-6">
       <div
@@ -23,7 +23,7 @@
 
       <div class="mb-4" v-for="upload in uploads" :key="upload.name">
         <div class="font-bold text-sm" :class="upload.text_class">
-          <i :class="upload.icon"></i> {{ upload.name }}
+          <Icon :name="upload.icon"></Icon> {{ upload.name }}
         </div>
         <div class="flex h-4 overflow-hidden bg-gray-200 rounded-lg">
           <div
@@ -42,7 +42,8 @@
 </template>
 
 <script setup>
-import checkExcelFile from '@/utils/checkExcelFile';
+
+import { storage,filesCollection } from '@/includes/firebase';
 const is_dragover = ref(false);
 const uploads = ref([]);
 const firstName = ref('');
@@ -56,32 +57,59 @@ async function upload($event) {
     : [...$event.target.files];
 
   uploads.value = [];
-  for (const file of files) {
-    try {
-      if (!checkExcelFile(file)) {
-        const data = await readCsvFile(file);
+
+  files.forEach((file) => {
+    if (checkExcelFile(file)) {
+        const data = readCsvFile(file);
         firstName.value = data[0]['First Name'];
         familyName.value = data[0]['Family Name'];
       }
 
-      uploads.value.push({
-        name: file.name,
-        icon: 'fas fa-file-csv',
-        text_class: 'text-sky-500',
-        variant: 'bg-sky-500',
-        current_progress: 100,
-      });
-    } catch (error) {
-      console.error('Error reading CSV file:', error);
+        const storageRef = storage.ref();
+        const filesRef = storageRef.child(`files/${file.name}`); 
+        const task = filesRef.put(file);
 
-      uploads.value.push({
-        name: file.name,
-        icon: 'fas fa-exclamation-circle',
-        text_class: 'text-red-500',
-        variant: 'bg-red-500',
-        current_progress: 100,
-      });
-    }
-  }
+        const uploadIndex =
+          this.uploads.push({
+            task,
+            current_progress: 0,
+            name: file.name,
+            variant: "bg-blue-400",
+            icon: "line-md:loading-alt-loop",
+            text_class: "",
+          }) - 1;
+
+        task.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploads[uploadIndex].current_progress = progress;
+          },
+          (error) => {
+            this.uploads[uploadIndex].variant = "bg-red-400";
+            this.uploads[uploadIndex].icon = "nonicons:error-16";
+            this.uploads[uploadIndex].text_class = "text-red-400";
+            console.log(error);
+          },
+          async () => {
+            const file = {
+              uid: 'i\'ll add it after auth',
+              patient_id: 'i\'ll add after using route',
+              file_name: task.snapshot.ref.name,
+            };
+
+            file.url = await task.snapshot.ref.getDownloadURL();
+            const fileRef = await filesCollection.add(file);
+            const fileSnapshot = await fileRef.get();
+
+            this.addFile(fileSnapshot);
+            
+            this.uploads[uploadIndex].variant = "bg-sky-400";
+            this.uploads[uploadIndex].icon = "lets-icons:done-fill";
+            this.uploads[uploadIndex].text_class = "text-sky-400";
+          }
+    );
+  });
 }
 </script>
