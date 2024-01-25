@@ -24,9 +24,11 @@
 </template>
 <script setup>
 import { useFetchFiles } from '@/api/useFetchFiles';
-const { files, pending, error, fetchData } = useFetchFiles();
+const route = useRoute()
+const patientId = ref(route.params.id);
+const { files, pending, error, fetchData } = useFetchFiles(patientId);
 
-watch(()=>{
-  fetchData()
-})
+watch(() => {
+  fetchData();
+});
 </script>

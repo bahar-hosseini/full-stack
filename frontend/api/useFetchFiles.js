@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 
-export const useFetchFiles = () => {
+export const useFetchFiles = (patientId) => {
   const files = ref(null);
   const pending = ref(false);
   const error = ref(null);
@@ -12,23 +12,29 @@ export const useFetchFiles = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-    
         },
         body: JSON.stringify({
           query: `
-            query GetAllFiles{
-              getAllFiles {
+            query GetAllFiles($patientId: ID!) {
+              getAllFiles(patientId: $patientId) {
                 id
                 url
                 name
+                patient {
+                  id
+                  firstname
+                  lastname
+                }
               }
             }
           `,
+          variables: {
+            patientId: patientId.value,
+          },
         }),
       });
 
       const result = await response.json();
-      console.log('sssss',result);
       files.value = result.data.getAllFiles;
     } catch (err) {
       error.value = err;

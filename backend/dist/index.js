@@ -20,6 +20,7 @@ const typeDefs = `#graphql
      hello: String
      getDataFromFirestore: String
      getAllPatients: [Patient]
+     getAllFiles(patientId: ID!): [FileWithPatient]
    }
 
  type User {
@@ -39,16 +40,32 @@ const typeDefs = `#graphql
     id: ID!
     firstname: String!
     lastname: String!
-    comments:[Comment]
   }
+
+  type File{
+    id: ID!
+    url:String!
+    name:String!
+    comments:[Comment]
+    patient: Patient
+  }
+
+  type FileWithPatient {
+  id: ID!
+  url: String!
+  name: String!
+  comments: [Comment]
+  patient: Patient
+}
 
  type Mutation {
   loginUser(email: String!, password: String!): User
      createUser(name: String!, email: String!, password: String!, position: String!): User
-     addComment(text: String!, patientId: ID!): Comment
+     addComment(text: String!, fileId: ID!): Comment
      deleteComment(id: ID!): Comment
      updateComment(id: ID!, text: String!): Comment
      addPatient(firstname: String!, lastname: String!): Patient
+     addFile(id: ID!, url: String!):File
 }
 
 `;
@@ -57,7 +74,7 @@ const resolvers = {
         getAllPatients: async () => {
             try {
                 const patientsSnapshot = await db.collection('patients').get();
-                const patients = patientsSnapshot.docs.map(doc => ({
+                const patients = patientsSnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
@@ -65,6 +82,34 @@ const resolvers = {
             }
             catch (error) {
                 throw new Error('Error fetching patients');
+            }
+        },
+        getAllFiles: async (_, { patientId }) => {
+            try {
+                const filesSnapshot = await db
+                    .collection('files')
+                    .where('patient_id', '==', patientId)
+                    .get();
+                const files = filesSnapshot.docs.map(async (doc) => {
+                    const fileData = doc.data();
+                    const patientSnapshot = await db
+                        .collection('patients')
+                        .doc(fileData.patient_id)
+                        .get();
+                    const patientData = patientSnapshot.data();
+                    return {
+                        id: doc.id,
+                        ...fileData,
+                        patient: {
+                            id: patientSnapshot.id,
+                            ...patientData,
+                        },
+                    };
+                });
+                return Promise.all(files);
+            }
+            catch (error) {
+                throw new Error('Error fetching files');
             }
         },
     },
@@ -124,15 +169,15 @@ const resolvers = {
                 throw new Error('Error adding patient');
             }
         },
-        addComment: async (_, { text, patientId }) => {
+        addComment: async (_, { text, fileId }) => {
             try {
                 await db.collection('comments').add({
                     text,
-                    patientId,
+                    fileId,
                 });
                 return {
                     text,
-                    patientId,
+                    fileId,
                 };
             }
             catch (error) {
@@ -161,6 +206,21 @@ const resolvers = {
             }
             catch (error) {
                 throw new Error('Error updating comment');
+            }
+        },
+        addFile: async (_, { id, url }) => {
+            try {
+                const fileRef = await db.collection('files').doc(id).set({
+                    url,
+                });
+                return {
+                    id,
+                    url,
+                };
+            }
+            catch (error) {
+                console.error('Error adding file:', error);
+                throw new Error('Error adding file');
             }
         },
     },

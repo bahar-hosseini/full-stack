@@ -54,6 +54,8 @@ const uploads = ref([]);
 const firstName = ref('');
 const familyName = ref('');
 
+const route = useRoute();
+
 async function upload($event) {
   is_dragover.value = false;
 
@@ -100,7 +102,7 @@ async function upload($event) {
       async () => {
         const file = {
           // uid: 'i\'ll add it after auth',
-          // patient_id: 'i\'ll add after using route',
+          patient_id: route.params.id,
           name: task.snapshot.ref.name,
         };
 
