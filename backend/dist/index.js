@@ -36,6 +36,7 @@ const typeDefs = `#graphql
     id: ID!
     text: String!
     fileId: ID!
+    datePosted:String!
   }
 
   type Patient {
@@ -63,9 +64,9 @@ const typeDefs = `#graphql
  type Mutation {
   loginUser(email: String!, password: String!): User
      createUser(name: String!, email: String!, password: String!, position: String!): User
-     addComment(text: String!, fileId: ID!): Comment
+     addComment(text: String!, fileId: ID!,datePosted:String!): Comment
      deleteComment(id: ID!): Comment
-     updateComment(id: ID!, text: String!): Comment
+     updateComment(id: ID!, text: String!,datePosted:String!): Comment
      addPatient(firstname: String!, lastname: String!): Patient
      addFile(id: ID!, url: String!):File
 }
@@ -187,15 +188,17 @@ const resolvers = {
                 throw new Error('Error adding patient');
             }
         },
-        addComment: async (_, { text, fileId }) => {
+        addComment: async (_, { text, fileId, datePosted }) => {
             try {
                 await db.collection('comments').add({
                     text,
                     fileId,
+                    datePosted
                 });
                 return {
                     text,
                     fileId,
+                    datePosted
                 };
             }
             catch (error) {
@@ -214,9 +217,9 @@ const resolvers = {
                 throw new Error('Error deleting comment');
             }
         },
-        updateComment: async (_, { id, text }) => {
+        updateComment: async (_, { id, text, datePosted }) => {
             try {
-                await db.collection('comments').doc(id).update({ text });
+                await db.collection('comments').doc(id).update({ text, datePosted });
                 return {
                     success: true,
                     message: 'Comment updated successfully',

@@ -3,13 +3,14 @@ export const usePostComment = () => {
   const pending = ref(false);
   const error = ref(null);
 
-  const postComment = async (text, fileId) => {
+  const postComment = async (text, fileId, datePosted) => {
     try {
       pending.value = true;
       const apiUrl = 'http://localhost:4000/graphql';
       const variables = {
         text,
         fileId: fileId.toString(),
+        datePosted,
       };
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -18,8 +19,8 @@ export const usePostComment = () => {
         },
         body: JSON.stringify({
           query: `
-    mutation AddComment($text: String!, $fileId: ID!) {
-      addComment(text: $text, fileId: $fileId) {
+    mutation AddComment($text: String!, $fileId: ID!,$datePosted:String!) {
+      addComment(text: $text, fileId: $fileId,datePosted:$datePosted) {
         text
         fileId
       }

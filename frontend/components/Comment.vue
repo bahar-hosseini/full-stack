@@ -65,6 +65,7 @@
       </button>
     </div>
     <p v-if="editedCommentId !== comment.id">{{ comment.text }}</p>
+    <time>{{ formatCommentDate(comment.datePosted) }}</time>
     <textarea
       v-if="editedCommentId === comment.id"
       v-model="editedCommentText"
@@ -80,10 +81,12 @@ import { useDeleteComment } from '@/api/useDeleteComment';
 import { usePostComment } from '@/api/usePostComment';
 import { useFetchComments } from '@/api/useFetchComments';
 import {useUpdateComment} from '@/api/useUpdateComment'
+import formatCommentDate from '@/utils/formatCommentDate'
 
 const commentText = ref('');
 const editedCommentText = ref('');
 const editedCommentId = ref(null);
+const datePosted = ref('');
 
 const route = useRoute();
 const fileId = route.params.id;
@@ -95,7 +98,8 @@ const { deleteComment } = useDeleteComment();
 
 const submitComment = async () => {
   try {
-    await postComment(commentText.value, fileId);
+    datePosted.value = new Date().toString();
+    await postComment(commentText.value, fileId,datePosted.value );
 
     commentText.value = '';
     fetchComments(fileId);
@@ -117,12 +121,12 @@ const deleteCommentHandler = async (commentId) => {
 const editCommentHandler = (commentId, commentText) => {
   editedCommentId.value = commentId;
   editedCommentText.value = commentText;
-  console.log('test');
+  datePosted.value = new Date().toString();
 };
 
 const saveEditedComment = async () => {
   try {
-    const editComment = useUpdateComment(editedCommentId.value,editedCommentText.value);
+    const editComment = useUpdateComment(editedCommentId.value, editedCommentText.value,datePosted.value );
     await editComment();
 
     editedCommentId.value = null;
@@ -135,5 +139,6 @@ const saveEditedComment = async () => {
 
 onMounted(() => {
   fetchComments(fileId);
+  console.log(comments);
 });
 </script>

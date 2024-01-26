@@ -1,4 +1,4 @@
-export const useUpdateComment = (id, text) => {
+export const useUpdateComment = (id, text, datePosted) => {
   const apiUrl = 'http://localhost:4000/graphql';
 
   const updateComment = async () => {
@@ -10,8 +10,8 @@ export const useUpdateComment = (id, text) => {
         },
         body: JSON.stringify({
           query: `
-            mutation UpdateComment($id: ID!, $text: String!) {
-              updateComment(id: $id, text: $text) {
+            mutation UpdateComment($id: ID!, $text: String!,$datePosted:String!) {
+              updateComment(id: $id, text: $text,datePosted:$datePosted) {
                 id
                 text
               }
@@ -20,6 +20,7 @@ export const useUpdateComment = (id, text) => {
           variables: {
             id,
             text,
+            datePosted,
           },
         }),
       });

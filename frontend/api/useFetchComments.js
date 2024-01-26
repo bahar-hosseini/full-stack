@@ -17,6 +17,7 @@ export const useFetchComments = (fileId) => {
               getComments(fileId: $fileId) {
                 id
                 text
+                datePosted
               }
             }
           `,
