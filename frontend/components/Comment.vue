@@ -27,7 +27,6 @@
             </button>
           </form>
           <select
-            v-model="sortOrder"
             class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
           >
             <option value="latest">Latest</option>
@@ -44,11 +43,14 @@
         class="p-6 bg-gray-50 border border-gray-200"
       >
         <div class="mb-5">
+          <time>{{ comment.createdAt }}</time>
           <button
+            @click="deleteCommentHandler(comment.id)"
             class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
           >
             <Icon name="mingcute:close-fill"></Icon>
           </button>
+
           <button
             class="ml-1 py-1 px-2 text-sm rounded text-white bg-blue-600 float-right"
           >
@@ -62,6 +64,7 @@
   </main>
 </template>
 <script setup>
+import { useDeleteComment } from '@/api/useDeleteComment';
 import { usePostComment } from '@/api/usePostComment';
 import { useFetchComments } from '@/api/useFetchComments';
 
@@ -70,19 +73,29 @@ const commentText = ref('');
 const route = useRoute();
 const fileId = route.params.id;
 
-const { comments, pending, error, fetchComments } = useFetchComments(fileId);
+const { comments, fetchComments } = useFetchComments(fileId);
 
 const { postComment } = usePostComment();
+const { deleteComment } = useDeleteComment();
 
 const submitComment = async () => {
   try {
     await postComment(commentText.value, fileId);
 
     commentText.value = '';
-
     fetchComments(fileId);
   } catch (error) {
     console.error('Error submitting comment:', error);
+  }
+};
+
+const deleteCommentHandler = async (commentId) => {
+  try {
+    const deleteComment = useDeleteComment(commentId);
+    await deleteComment();
+    fetchComments(fileId);
+  } catch (error) {
+    console.error('Error deleting comment:', error);
   }
 };
 

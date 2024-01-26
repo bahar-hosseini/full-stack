@@ -11,7 +11,7 @@ export const usePostComment = () => {
         text,
         fileId: fileId.toString(),
       };
-      const response = await fetch('http://localhost:4000/graphql', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -31,6 +31,7 @@ const typeDefs = `#graphql
      getDataFromFirestore: String
      getAllPatients: [Patient]
      getAllFiles(patientId: ID!): [FileWithPatient]
+     getComments(fileId: ID!): [Comment]
    }
 
  type User {
@@ -44,6 +45,7 @@ const typeDefs = `#graphql
  type Comment {
     id: ID!
     text: String!
+    fileId: ID!
   }
 
   type Patient {
@@ -123,6 +125,23 @@ const resolvers = {
         return Promise.all(files);
       } catch (error) {
         throw new Error('Error fetching files');
+      }
+    },
+    getComments: async (_, { fileId }) => {
+      try {
+        const commentsSnapshot = await db
+          .collection('comments')
+          .where('fileId', '==', fileId)
+          .get();
+
+        const comments = commentsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        return comments;
+      } catch (error) {
+        throw new Error('Error fetching comments');
       }
     },
 
