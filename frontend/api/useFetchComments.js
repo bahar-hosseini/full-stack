@@ -28,7 +28,6 @@ export const useFetchComments = (fileId) => {
 
       const result = await response.json();
       comments.value = result.data.getComments;
-      console.log(comments.value,'reesult');
     } catch (err) {
       error.value = err;
     } finally {

@@ -35,40 +35,55 @@
         </div>
       </div>
     </section>
-
     <ul class="container mx-auto">
-      <li
-        v-for="(comment, index) in comments"
-        :key="index"
-        class="p-6 bg-gray-50 border border-gray-200"
+  <li
+    v-for="(comment, index) in comments"
+    :key="index"
+    class="p-6 bg-gray-50 border border-gray-200"
+  >
+    <div class="mb-5">
+      <time>{{ comment.createdAt }}</time>
+      <button
+        @click="deleteCommentHandler(comment.id)"
+        class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
       >
-        <div class="mb-5">
-          <time>{{ comment.createdAt }}</time>
-          <button
-            @click="deleteCommentHandler(comment.id)"
-            class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
-          >
-            <Icon name="mingcute:close-fill"></Icon>
-          </button>
+        <Icon name="mingcute:close-fill"></Icon>
+      </button>
 
-          <button
-            class="ml-1 py-1 px-2 text-sm rounded text-white bg-blue-600 float-right"
-          >
-            <Icon name="ic:outline-edit"></Icon>
-          </button>
-        </div>
-
-        <p>{{ comment.text }}</p>
-      </li>
-    </ul>
+      <button
+        @click="editCommentHandler(comment.id, comment.text)"
+        class="ml-1 py-1 px-2 text-sm rounded text-white bg-blue-600 float-right"
+      >
+        <Icon name="ic:outline-edit"></Icon>
+      </button>
+      <button
+        v-if="editedCommentId === comment.id"
+        @click="saveEditedComment"
+        class="ml-1 py-1 px-2 text-sm rounded text-white bg-green-600 float-right"
+      >
+        Save
+      </button>
+    </div>
+    <p v-if="editedCommentId !== comment.id">{{ comment.text }}</p>
+    <textarea
+      v-if="editedCommentId === comment.id"
+      v-model="editedCommentText"
+      class="block w-full mt-2 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-4"
+      placeholder="Edit your comment here..."
+    ></textarea>
+  </li>
+</ul>
   </main>
 </template>
 <script setup>
 import { useDeleteComment } from '@/api/useDeleteComment';
 import { usePostComment } from '@/api/usePostComment';
 import { useFetchComments } from '@/api/useFetchComments';
+import {useUpdateComment} from '@/api/useUpdateComment'
 
 const commentText = ref('');
+const editedCommentText = ref('');
+const editedCommentId = ref(null);
 
 const route = useRoute();
 const fileId = route.params.id;
@@ -96,6 +111,25 @@ const deleteCommentHandler = async (commentId) => {
     fetchComments(fileId);
   } catch (error) {
     console.error('Error deleting comment:', error);
+  }
+};
+
+const editCommentHandler = (commentId, commentText) => {
+  editedCommentId.value = commentId;
+  editedCommentText.value = commentText;
+  console.log('test');
+};
+
+const saveEditedComment = async () => {
+  try {
+    const editComment = useUpdateComment(editedCommentId.value,editedCommentText.value);
+    await editComment();
+
+    editedCommentId.value = null;
+    editedCommentText.value = '';
+    fetchComments(fileId);
+  } catch (error) {
+    console.error('Error saving edited comment:', error);
   }
 };
 

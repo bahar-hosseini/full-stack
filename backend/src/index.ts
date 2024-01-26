@@ -237,15 +237,15 @@ const resolvers = {
       }
     },
 
-    updateComment: async (_, { id, newText }) => {
+    updateComment: async (_, { id, text }) => {
       try {
-        await db.collection('comments').doc(id).update({ text: newText });
-
+        await db.collection('comments').doc(id).update({ text });
         return {
           success: true,
           message: 'Comment updated successfully',
         };
       } catch (error) {
+        console.error('Error updating comment:', error);
         throw new Error('Error updating comment');
       }
     },
