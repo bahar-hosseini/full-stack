@@ -1,13 +1,8 @@
 <template>
   <main>
-    <section class="w-full mb-8 py-14 text-center text-sky-700 relative">
-      <div class="container mx-auto flex items-center">
-        <div class="z-50 text-left ml-8">
-          <div class="text-3xl font-bold">Dashboard</div>
-        </div>
-      </div>
-    </section>
-
+    <section
+      class="w-full mb-8 py-14 text-center text-sky-700 relative"
+    ></section>
     <section class="container mx-auto mt-6" id="comments">
       <div
         class="bg-white rounded border border-gray-200 relative flex flex-col"
@@ -17,15 +12,13 @@
           <i class="fa fa-comments float-right text-sky-400 text-2xl"></i>
         </div>
         <div class="p-6">
-          <div></div>
-          <form>
+          <form @submit.prevent="submitComment">
             <textarea
-              as="textarea"
+              v-model="commentText"
               name="comment"
               class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-4"
               placeholder="Your comment here..."
-            />
-            <ErrorMessage class="text-red-600" name="comment" />
+            ></textarea>
             <button
               type="submit"
               class="py-1.5 px-3 rounded text-white bg-sky-600 block"
@@ -34,26 +27,27 @@
             </button>
           </form>
           <select
+            v-model="sortOrder"
             class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
           >
-            <option value="1">Latest</option>
-            <option value="2">Oldest</option>
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
           </select>
         </div>
       </div>
     </section>
 
     <ul class="container mx-auto">
-      <li class="p-6 bg-gray-50 border border-gray-200">
+      <li
+        v-for="(comment, index) in comments"
+        :key="index"
+        class="p-6 bg-gray-50 border border-gray-200"
+      >
         <div class="mb-5">
-          <div class="font-bold"></div>
-          <time>time</time>
           <button
             class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
           >
-            <Icon
-              name="mingcute:close-fill"
-            ></Icon>
+            <Icon name="mingcute:close-fill"></Icon>
           </button>
           <button
             class="ml-1 py-1 px-2 text-sm rounded text-white bg-blue-600 float-right"
@@ -61,8 +55,38 @@
             <Icon name="ic:outline-edit"></Icon>
           </button>
         </div>
-        <p>Comment content</p>
+
+        <p>{{ comment.text }}</p>
       </li>
     </ul>
   </main>
 </template>
+<script setup>
+import { usePostComment } from '@/api/usePostComment';
+import { useFetchComments } from '@/api/useFetchComments';
+
+const commentText = ref('');
+
+const route = useRoute();
+const fileId = route.params.id;
+
+const { comments, pending, error, fetchComments } = useFetchComments(fileId);
+
+const { postComment } = usePostComment();
+
+const submitComment = async () => {
+  try {
+    await postComment(commentText.value, fileId);
+
+    commentText.value = '';
+
+    fetchComments(fileId);
+  } catch (error) {
+    console.error('Error submitting comment:', error);
+  }
+};
+
+onMounted(() => {
+  fetchComments(fileId);
+});
+</script>
