@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="text-white text-center font-bold p-4 mb-4">
-      <p>message</p>
     </div>
-    <form method="post">
+    <form @submit.prevent="handleSubmit">
       <div class="mb-3">
         <label class="inline-block mb-2">Email</label>
         <input
+          v-model="email"
           type="email"
           class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
           placeholder="Enter Email"
@@ -16,6 +16,7 @@
       <div class="mb-3">
         <label class="inline-block mb-2">Password</label>
         <input
+          v-model="password"
           type="password"
           class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
           placeholder="Password"
@@ -30,3 +31,22 @@
     </form>
   </div>
 </template>
+
+<script setup>
+import loginUser from '@/api/useLoginUser';
+
+const email = ref('');
+const password = ref('');
+const router = useRouter();
+
+const handleSubmit = async () => {
+  try {
+    const response = await loginUser(email.value, password.value);
+    if (user) {
+      router.push('/patient');
+    }
+  } catch (error) {
+    console.error('Login failed:', error);
+  }
+};
+</script>
