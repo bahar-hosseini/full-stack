@@ -145,7 +145,6 @@ const saveEditedComment = async () => {
 };
 
 const sortComments = () => {
-  console.log('Sorting comments:', sortBy.value);
   comments.value.sort((a, b) => {
     if (sortBy.value === 'latest') {
       return new Date(b.datePosted) - new Date(a.datePosted);
@@ -156,6 +155,5 @@ const sortComments = () => {
 
 onMounted(() => {
   fetchComments(fileId);
-  console.log(comments);
 });
 </script>

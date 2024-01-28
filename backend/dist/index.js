@@ -170,7 +170,6 @@ const resolvers = {
                 password,
                 position,
             });
-            console.log(customToken);
             return {
                 token: customToken,
                 uid: userCred.uid,
