@@ -12,21 +12,21 @@
       <div class="flex flex-grow items-center">
         <ul class="flex flex-row mt-1">
 
-          <li>
-            <a class="px-2 text-white" href="#"
-              >Login / Register</a
-            >
+          <li v-if="!isLoggedin">
+            <NuxtLink class="px-2 text-white" :to="`/`">
+              Login / Register
+            </NuxtLink>
           </li>
-          <template >
+          <template v-else>
             <li>
-              <router-link class="px-2 text-white" :to="`/patient`">
-                Patients' List</router-link
-              >
+              <NuxtLink class="px-2 text-white" :to="`/patient`">
+                Patients' List
+              </NuxtLink>
             </li>
             <li>
-              <a class="px-2 text-white" href="#"
-                >Logout</a
-              >
+              <a class="px-2 text-white" href="#" @click.prevent="signOut">
+                Logout
+              </a>
             </li>
           </template>
         </ul>
@@ -35,3 +35,9 @@
   </header>
 </template>
 
+<script setup>
+import { useUserStore } from '@/stores/user';
+
+const { userLoggedIn, signOut } = useUserStore();
+const isLoggedin = userLoggedIn;
+</script>

@@ -28,9 +28,12 @@ export const useUserStore = defineStore("user", {
         console.error("Error authenticating user:", error);
       }
     },
-    // signOut() {
-    //   this.userLoggedIn = false;
-    //   this.position = null;
-    // },
+    signOut() {
+      const router = useRouter();
+      router.push('/');
+      this.userLoggedIn = false;
+      this.position = null;
+
+    },
   },
 });
