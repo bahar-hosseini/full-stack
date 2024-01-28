@@ -28,7 +28,7 @@ const loginUser = async function(email, password) {
       console.error('Login failed:', result.errors[0].message);
     } else {
       const user = result.data.loginUser;
-      console.log('User logged in:', user);
+      console.log('User logged in');
       return user;
     }
   } catch (error) {
