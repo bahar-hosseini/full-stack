@@ -39,7 +39,7 @@
         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
       >
         <option value="Doctor">Doctor</option>
-        <option value="Assistance">Assistance</option>
+        <option value="Assistance">Assistant</option>
       </select>
     </div> 
     <button
@@ -53,20 +53,19 @@
 
 <script setup>
 import { ref } from 'vue';
-import createUser from '@/api/useCreateUser';
+import { useRouter } from 'vue-router';
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
-const position = ref('Doctor')
+const position = ref('Doctor');
 const router = useRouter();
+const userStore = useUserStore();
 
 const handleSubmit = async () => {
   try {
-    const user = await createUser(name.value, email.value, password.value,position.value);
-    if (user) {
-      router.push('/patient')
-    }
+    await userStore.register({ name: name.value, email: email.value, password: password.value, position: position.value });
+    router.push('/patient');
   } catch (error) {
     console.error('User creation failed:', error.message);
   }

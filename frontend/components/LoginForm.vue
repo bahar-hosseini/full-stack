@@ -31,18 +31,20 @@
     </form>
   </div>
 </template>
-
 <script setup>
-import loginUser from '@/api/useLoginUser';
+
+import { useRouter } from 'vue-router';
+
 
 const email = ref('');
 const password = ref('');
 const router = useRouter();
+const userStore = useUserStore();
 
 const handleSubmit = async () => {
   try {
-    const response = await loginUser(email.value, password.value);
-    if (user) {
+    await userStore.authenticate({ email: email.value, password: password.value });
+    if (userStore.userLoggedIn) {
       router.push('/patient');
     }
   } catch (error) {

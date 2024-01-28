@@ -9,7 +9,6 @@ const createUser = async function(name, email, password, position) {
         query: `
           mutation CreateUser($name: String!, $email: String!, $password: String!, $position: String!) {
             createUser(name: $name, email: $email, password: $password, position: $position) {
-              id
               name
               email
               password
