@@ -161,10 +161,13 @@ const resolvers = {
         if (!userDoc.exists) {
           throw new Error('User not found');
         }
+        const customToken = await admin.auth().createCustomToken(uid);
 
         return {
+          token: customToken,
           name: userDoc.data().name,
           email: userDoc.data().email,
+          position: userDoc.data().position,
         };
       } catch (error) {
         throw new Error('Invalid credentials');
@@ -176,21 +179,26 @@ const resolvers = {
         email,
         password,
       });
-
+    
+      const customToken = await admin.auth().createCustomToken(userCred.uid);
+    
       await db.collection('users').doc(userCred.uid).set({
         uid: userCred.uid,
         name,
         email,
+        password,
         position,
       });
-
       return {
+        token: customToken,
         uid: userCred.uid,
         name,
         email,
+        password,
         position,
       };
     },
+    
 
     addPatient: async (_, { firstname, lastname }) => {
       try {

@@ -1,7 +1,7 @@
 <template>
   <div>
 <h1>
-  Login Page
+<Auth />
 </h1>
   </div>
 </template>

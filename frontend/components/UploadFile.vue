@@ -1,5 +1,6 @@
-<template>
-  <div class="bg-white rounded border border-gray-200 relative flex flex-col">
+<template >
+  <div v-if="userPosition && userPosition !== 'Doctor'"
+   class="bg-white rounded border border-gray-200 relative flex flex-col">
     <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
       <span class="card-title">Upload</span>
       <Icon
@@ -48,6 +49,9 @@
 
 <script setup>
 import { storage, filesCollection } from '@/includes/firebase';
+
+
+const userPosition = useUserStore().position;
 
 const is_dragover = ref(false);
 const uploads = ref([]);
@@ -115,6 +119,7 @@ async function upload($event) {
         this.uploads[uploadIndex].variant = 'bg-sky-400';
         this.uploads[uploadIndex].icon = 'lets-icons:done-fill';
         this.uploads[uploadIndex].text_class = 'text-sky-400';
+        window.location.reload();
       }
     );
   });
