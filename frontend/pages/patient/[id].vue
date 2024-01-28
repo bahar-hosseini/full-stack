@@ -1,6 +1,7 @@
 <template>
+  <AppHeader />
   <div>
-   <Dashboard />
+    <Dashboard />
   </div>
 </template>
 <script setup>
