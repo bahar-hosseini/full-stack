@@ -31,7 +31,7 @@ const createUser = async function(name, email, password, position) {
       console.error('User creation failed:', result.errors[0].message);
     } else {
       const user = result.data.createUser;
-      console.log('User created:', user);
+      console.log('User created');
       return user;
     }
   } catch (error) {
