@@ -12,7 +12,6 @@
       <div class="text-gray-600 text-lg">
         <span class="comments">
           <Icon name="iconamoon:comment-fill" class="fa fa-comments text-gray-600"></Icon>
-          0
         </span>
       </div>
     </li>
