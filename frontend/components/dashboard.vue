@@ -29,7 +29,7 @@ const route = useRoute()
 const patientId = ref(route.params.id);
 const { files, pending, error, fetchData } = useFetchFiles(patientId);
 
-watchEffect(() => {
+watch(() => {
   fetchData();
 });
 </script>
