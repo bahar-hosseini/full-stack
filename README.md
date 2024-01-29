@@ -33,16 +33,41 @@ As a clinic assistant, I aim to facilitate the efficient management of patient f
 1. **Assistant Functionality:**
    - Enable assistants to upload files on behalf of patients.
 
+   ![assistant](docs/assistant-upload-file.gif)
+   ![assistant](docs/upload-file2.gif)
+
 ### Comment Management:
 1. **Assistant Capability:**
    - Allow assistants to create, read, or delete comments on patient files.
+  
+      Create
+
+![add](docs/add-comment.gif)
+
+      Update
+
+![update](docs/edit-comment.gif)
+
+      Delete
+  
+![delete](docs/delete-comment.gif)
+
    - Allow assistants to view comments in chronological order.
-2. **Doctor Capability:**
+  
+      Sort 
+
+![sort](docs/sort.gif)
+
+1. **Doctor Capability:**
    - Enable doctors to perform similar actions on patient files' comments.
+
+![restriction](docs/uploading-restricted-to-assistant.gif)
 
 ### Patient Management:
 1. **Unique Identification:**
    - Should be able to uniquely determine the patient of a file.
+     - After uploading a file into a patient's dashboard system identifies the patient's name 
+![dashboard](docs/a-patient-dashboard.gif)
 
 ## Optional Requirements:
 
