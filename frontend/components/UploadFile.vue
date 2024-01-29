@@ -1,5 +1,5 @@
 <template >
-  <div v-if="userPosition && userPosition !== 'Doctor'"
+  <div v-if=" userPosition !== 'Doctor'"
    class="bg-white rounded border border-gray-200 relative flex flex-col">
     <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
       <span class="card-title">Upload</span>
